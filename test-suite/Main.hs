@@ -7,6 +7,7 @@ import Editor (perform
               , State(..)
               , initialState
               , performAll)
+import Data.Sequence (empty)
 
 main :: IO ()
 main = do
@@ -19,19 +20,19 @@ spec = parallel $ do
     describe "appending" $ do
       context "to initial state" $ do
         it "returns correct state" $ do
-          let outputState = (State "horse" "" [Append "horse"])
+          let outputState = (State "horse" empty [Append "horse"])
           perform initialState (Append "horse") `shouldBe` outputState
 
       context "to existing state" $ do
-        let previousState = (State "initial" "" [Append "initial"])
+        let previousState = (State "initial" empty [Append "initial"])
         it "returns correct state" $ do
-          let outputState = (State "initial new" "" [Append " new", Append "initial"])
+          let outputState = (State "initial new" empty [Append " new", Append "initial"])
           perform previousState (Append " new") `shouldBe` outputState
 
     describe "deleting" $ do
       it "removes correct number of characters" $ do
-        let previousState = (State "initial state" "" [Append "initial state"])
-            outputState = (State "initial" "" [Delete 6, Append "initial state"])
+        let previousState = (State "initial state" empty [Append "initial state"])
+            outputState = (State "initial" empty [Delete 6, Append "initial state"])
         perform previousState (Delete 6) `shouldBe` outputState
 
     describe "printing" $ do
@@ -43,8 +44,8 @@ spec = parallel $ do
     describe "undoing" $ do
       context "with previous command an append" $ do
         it "removes appended text, and pops append command from history" $ do
-          let previousState = (State "initial new" "" [Append " new", Append "initial"])
-              outputState = (State "initial" "" [Append "initial"])
+          let previousState = (State "initial new" empty [Append " new", Append "initial"])
+              outputState = (State "initial" empty [Append "initial"])
           perform previousState Undo `shouldBe` outputState
 
   describe "performAll" $ do

@@ -39,6 +39,7 @@ library:
   dependencies:
   - base
   - text
+  - containers
   source-dirs: library
 maintainer: Jesse Hanley
 name: simple-text-editor
@@ -50,6 +51,7 @@ tests:
     - simple-text-editor
     - tasty
     - tasty-hspec
+    - containers
     ghc-options:
     - -rtsopts
     - -threaded

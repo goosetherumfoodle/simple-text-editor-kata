@@ -14,7 +14,9 @@ import Data.Text.Lazy (Text(..)
                       , append
                       , index)
 import Data.Int (Int64)
-import Debug.Trace (trace)
+import Data.Sequence (Seq
+                     , empty
+                     , (<|))
 
 -- TODO: 1: protect undoable command list (in state) from getting a non-undoable command
 -- 3: protect integers (in Print and Delete) from being unnatural numbers, or less than 1 in Print's case
@@ -26,11 +28,12 @@ type InternalString = Text
 data Command = Delete Int64 | Append Text | Print Int64 | Undo deriving (Show, Eq)
 data State = State {
     getInternal :: InternalString
-  , getOutput :: OutputString
+  , getOutput :: Seq Char
   , getHistory :: [Command]
   } deriving (Show, Eq)
 
-initialState = State "" "" []
+initialState :: State
+initialState = State "" empty []
 
 perform :: State -> Command -> State
 perform s cmd@(Append str) = State (append (getInternal s) str)
@@ -40,9 +43,9 @@ perform s cmd@(Delete i) = State (dropEnd i $ getInternal s)
                                  (getOutput s)
                                  (cmd : getHistory s)
 perform s (Print i) = State (getInternal s)
-                                ((index (getInternal s) (i - 1)) : (getOutput s))
-                                (getHistory s)
-perform s Undo = State (getInternal $ performAll (State "" "" []) (tail $ getHistory s))
+                            ((index (getInternal s) (i - 1)) <| (getOutput s))
+                            (getHistory s)
+perform s Undo = State (getInternal $ performAll initialState (tail $ getHistory s))
                        (getOutput s)
                        (tail $ getHistory s)
 
