@@ -7,8 +7,8 @@ import Editor (perform
               , State(..)
               , initialState
               , performAll
-              , queueEmpty
-              , enqueue)
+              )
+import Data.Queue (emptyQueue, enqueue)
 
 main :: IO ()
 main = do
@@ -21,26 +21,26 @@ spec = parallel $ do
     describe "appending" $ do
       context "to initial state" $ do
         it "returns correct state" $ do
-          let outputState = (State "horse" queueEmpty [Append "horse"])
+          let outputState = (State "horse" emptyQueue [Append "horse"])
           perform initialState (Append "horse") `shouldBe` outputState
 
       context "to existing state" $ do
-        let previousState = (State "initial" queueEmpty [Append "initial"])
+        let previousState = (State "initial" emptyQueue [Append "initial"])
         it "returns correct state" $ do
-          let outputState = (State "initial new" queueEmpty [Append " new", Append "initial"])
+          let outputState = (State "initial new" emptyQueue [Append " new", Append "initial"])
           perform previousState (Append " new") `shouldBe` outputState
 
     describe "deleting" $ do
       context "more characters than exist in the internal string" $ do
         it "doesn't error, just blanks internal string" $ do
-          let previousState = (State "initial state" queueEmpty [Append "initial state"])
-              outputState = (State "" queueEmpty [Delete 100, Append "initial state"])
+          let previousState = (State "initial state" emptyQueue [Append "initial state"])
+              outputState = (State "" emptyQueue [Delete 100, Append "initial state"])
           perform previousState (Delete 100) `shouldBe` outputState
 
       context "less characters than exist in internal string" $ do
         it "removes correct number of characters" $ do
-          let previousState = (State "initial state" queueEmpty [Append "initial state"])
-              outputState = (State "initial" queueEmpty [Delete 6, Append "initial state"])
+          let previousState = (State "initial state" emptyQueue [Append "initial state"])
+              outputState = (State "initial" emptyQueue [Delete 6, Append "initial state"])
           perform previousState (Delete 6) `shouldBe` outputState
 
     describe "printing" $ do
@@ -59,8 +59,8 @@ spec = parallel $ do
     describe "undoing" $ do
       context "with previous command an append" $ do
         it "removes appended text, and pops append command from history" $ do
-          let previousState = (State "initial new" queueEmpty [Append " new", Append "initial"])
-              outputState = (State "initial" queueEmpty [Append "initial"])
+          let previousState = (State "initial new" emptyQueue [Append " new", Append "initial"])
+              outputState = (State "initial" emptyQueue [Append "initial"])
           perform previousState Undo `shouldBe` outputState
 
   describe "performAll" $ do
@@ -85,7 +85,7 @@ spec = parallel $ do
 
     context "with too many undos" $ do
       it "doesn't error, just empties command history in state" $ do
-        let outputState = (State "remaining" queueEmpty [Append "remaining"])
+        let outputState = (State "remaining" emptyQueue [Append "remaining"])
             commands = [Append "a"
                        , Append "b"
                        , Undo

@@ -5,24 +5,16 @@ module Editor (perform
                , State(..)
                , initialState
                , performAll
-               , queueEmpty
-               , enqueue) where
+               ) where
+
 import Data.Text.Lazy (Text
                       , dropEnd
                       , append
                       , index)
 import qualified Data.Text.Lazy as T
 import Data.Int (Int64)
-import Data.Sequence (Seq
-                     , empty
-                     , (<|)
-                     , fromList)
 import Safe (tailSafe)
-
--- TODO:
--- 4: move queue logic to own namespace
-
-newtype Queue a = Queue (Seq a) deriving (Show, Eq)
+import Data.Queue (emptyQueue, queuePush, Queue)
 
 type Output = Queue Char
 type InternalString = Text
@@ -34,17 +26,8 @@ data State = State {
   , getHistory :: [Command]
   } deriving (Show, Eq)
 
-enqueue :: [a] -> Queue a
-enqueue = Queue . fromList
-
-queuePush :: a -> Queue a -> Queue a
-queuePush a (Queue sqnce) = Queue $ a <| sqnce
-
-queueEmpty :: Queue a
-queueEmpty = Queue empty
-
 initialState :: State
-initialState = State "" queueEmpty []
+initialState = State "" emptyQueue []
 
 performAll :: State -> [Command] -> State
 performAll s (cmd:cmds) = performAll (perform s cmd) cmds
