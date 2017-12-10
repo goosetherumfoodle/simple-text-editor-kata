@@ -22,9 +22,10 @@ import Text.Trifecta (Parser
 main :: ByteString -> Result [Command]
 main input = parseByteString commandInputParser mempty input
 
+-- loops parseCommand until end of file or bad input
 commandInputParser :: Parser [Command]
 commandInputParser = do
-  _ <- parseSomeDigits 1 <* char '\n' -- throw away first digit as we don't use it
+  _ <- parseSomeDigits 1 <* whiteSpace -- throw away first digit as we don't use it
   manyTill parseCommand $ try endOfLine
 
 parseCommand :: Parser Command
@@ -49,5 +50,6 @@ parseToken token = some space >> token >>= \args -> return args <* whiteSpace
 parseSomeDigits :: Int -> Parser Integer
 parseSomeDigits num = read <$> replicateM num digit
 
+-- detect the end of the line or the file
 endOfLine :: Parser (Either () Char)
 endOfLine = Right <$> (char '\n') <|> Left <$> eof

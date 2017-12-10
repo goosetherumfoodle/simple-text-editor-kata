@@ -10,12 +10,16 @@ import qualified Parser
 import qualified Data.Queue as Q
 import Types
 
+-- will read file from commandline if provided,
+-- otherwise uses a default sample file
 main :: IO ()
 main = do
   fileText <- (BS.readFile <$> getFilePath)
   parsedCommands <- handleResults <$> (Parser.main <$> fileText)
   parsedCommands >>= (Q.printQueue . Editor.main)
 
+
+-- Throws error if parser didn't like the file
 handleResults :: Result [Command] -> IO [Command]
 handleResults (Success cmds) = return cmds
 handleResults (Failure err) =  do BS.hPutStrLn stderr $ BS.pack ("Parsing error: " ++ (show err))
