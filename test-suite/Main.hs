@@ -6,12 +6,11 @@ import Test.Tasty.Hspec
 import Data.ByteString (readFile)
 import Text.Trifecta (Result(..))
 import Editor (perform
-              , Command(..)
-              , State(..)
               , initialState
               , performAll
               )
 import Data.Queue (emptyQueue, enqueue)
+import Types
 import qualified Parser (main)
 
 main :: IO ()

@@ -4,9 +4,9 @@ import Data.Text.Lazy (pack)
 import Text.Parser.Combinators (some)
 import Text.Parser.Token (natural, whiteSpace)
 import Data.ByteString.Char8 (ByteString)
-import Editor (Command(..))
 import Control.Monad(replicateM)
 import Control.Applicative ((<|>))
+import Types
 import Text.Trifecta (Parser
                      , Result
                      , parseByteString
@@ -18,9 +18,6 @@ import Text.Trifecta (Parser
                      , try
                      , manyTill
                      )
-
--- TODO: delete example file
-  -- extract types into seperate namespace
 
 main :: ByteString -> Result [Command]
 main input = parseByteString commandInputParser mempty input

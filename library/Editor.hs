@@ -1,31 +1,16 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Editor (main
-              , perform
-               , Command(..)
-               , State(..)
-               , initialState
-               , performAll
-               ) where
+module Editor (main, perform, initialState, performAll) where
 
 import Data.Text.Lazy (Text
                       , dropEnd
                       , append
                       , index)
 import qualified Data.Text.Lazy as T
-import Data.Int (Int64)
 import Safe (tailSafe)
+import Data.Int (Int64)
 import Data.Queue (emptyQueue, queuePush, Queue)
-
-type Output = Queue Char
-type InternalString = Text
-
-data Command = Delete Int64 | Append Text | Print Int64 | Undo deriving (Show, Eq)
-data State = State {
-    getInternal :: InternalString
-  , getOutput :: Output
-  , getHistory :: [Command]
-  } deriving (Show, Eq)
+import Types
 
 main :: [Command] -> Output
 main = getOutput . (performAll initialState)
