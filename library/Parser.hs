@@ -1,30 +1,39 @@
-module Parser where
+module Parser (parseCommandInput) where
 
 import Data.Text.Lazy (pack)
-import Data.Text.Encoding (decodeUtf8)
-import Text.Trifecta (Parser, Result, parseByteString, many, char, space, string, digit, lower, eof, try, manyTill)
 import Text.Parser.Combinators (some)
 import Text.Parser.Token (natural, whiteSpace)
-import Prelude hiding (readFile)
-import Data.ByteString.Char8 (ByteString , readFile)
+import Data.ByteString.Char8 (ByteString)
 import Editor (Command(..))
 import Control.Monad(replicateM)
 import Control.Applicative ((<|>))
+import Text.Trifecta (Parser
+                     , Result
+                     , parseByteString
+                     , char
+                     , space
+                     , digit
+                     , lower
+                     , eof
+                     , try
+                     , manyTill
+                     )
 
 -- TODO: delete example file
   -- extract types into seperate namespace
 
-parseCommandInput :: IO (Result [Command])
-parseCommandInput = parseByteString commandInputParser mempty <$> commandInput
+parseCommandInput :: ByteString -> Result [Command]
+parseCommandInput input = parseByteString commandInputParser mempty input
 
 commandInputParser :: Parser [Command]
 commandInputParser = do
-  _ <- parseSomeDigits 1 <* char '\n' -- throw away first digit as we don't need it
+  _ <- parseSomeDigits 1 <* char '\n' -- throw away first digit as we don't use it
   manyTill parseCommand $ try endOfLine
 
 parseCommand :: Parser Command
 parseCommand = do
   commandNumber <- digit
+  -- we're assuming valid input commands of 1-4
   case commandNumber of
     '1' -> Append . pack <$> parseStringArg
     '2' -> Delete . fromInteger <$> parseNumberArg
@@ -39,9 +48,6 @@ parseStringArg = parseToken $ some lower
 
 parseToken :: Parser a  -> Parser a
 parseToken token = some space >> token >>= \args -> return args <* whiteSpace
-
-commandInput :: IO ByteString
-commandInput = readFile "data/input.txt"
 
 parseSomeDigits :: Int -> Parser Integer
 parseSomeDigits num = read <$> replicateM num digit

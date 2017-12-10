@@ -1,7 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 
+import Prelude hiding (readFile)
 import qualified Test.Tasty
 import Test.Tasty.Hspec
+import Data.ByteString (readFile)
+import Text.Trifecta (Result(..))
 import Editor (perform
               , Command(..)
               , State(..)
@@ -9,6 +12,7 @@ import Editor (perform
               , performAll
               )
 import Data.Queue (emptyQueue, enqueue)
+import Parser (parseCommandInput)
 
 main :: IO ()
 main = do
@@ -97,3 +101,11 @@ spec = parallel $ do
                        , Append "remaining"
                        ]
         performAll initialState commands `shouldBe` outputState
+
+  describe "integration" $ do
+    context "parsing and executing sample file" $ do
+      it "gives correct output string" $ do
+        let expectedOutput = enqueue "ayc"
+        parsed <- (parseCommandInput <$> readFile "data/input-sample.txt")
+        case parsed of (Success commands) -> (getOutput $ performAll initialState commands) `shouldBe` expectedOutput
+                       (Failure err) -> (enqueue $ show $ err) `shouldBe` expectedOutput

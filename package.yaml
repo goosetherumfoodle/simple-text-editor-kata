@@ -55,6 +55,8 @@ tests:
     - tasty
     - tasty-hspec
     - containers
+    - bytestring
+    - trifecta
     ghc-options:
     - -rtsopts
     - -threaded
