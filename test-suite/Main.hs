@@ -6,8 +6,10 @@ import Editor (perform
               , Command(..)
               , State(..)
               , initialState
-              , performAll)
-import Data.Sequence (empty)
+              , performAll
+              , queueEmpty
+              , enqueue)
+
 
 main :: IO ()
 main = do
@@ -20,42 +22,42 @@ spec = parallel $ do
     describe "appending" $ do
       context "to initial state" $ do
         it "returns correct state" $ do
-          let outputState = (State "horse" empty [Append "horse"])
+          let outputState = (State "horse" queueEmpty [Append "horse"])
           perform initialState (Append "horse") `shouldBe` outputState
 
       context "to existing state" $ do
-        let previousState = (State "initial" empty [Append "initial"])
+        let previousState = (State "initial" queueEmpty [Append "initial"])
         it "returns correct state" $ do
-          let outputState = (State "initial new" empty [Append " new", Append "initial"])
+          let outputState = (State "initial new" queueEmpty [Append " new", Append "initial"])
           perform previousState (Append " new") `shouldBe` outputState
 
     describe "deleting" $ do
       it "removes correct number of characters" $ do
-        let previousState = (State "initial state" empty [Append "initial state"])
-            outputState = (State "initial" empty [Delete 6, Append "initial state"])
+        let previousState = (State "initial state" queueEmpty [Append "initial state"])
+            outputState = (State "initial" queueEmpty [Delete 6, Append "initial state"])
         perform previousState (Delete 6) `shouldBe` outputState
 
     describe "printing" $ do
       it "conses the correct character into the output" $ do
-        let previousState = (State "initial" "i" [Append "initial"])
-            outputState = (State "initial" "ni" [Append "initial"])
+        let previousState = (State "initial" (enqueue "i") [Append "initial"])
+            outputState = (State "initial" (enqueue "ni") [Append "initial"])
         perform previousState (Print 2) `shouldBe` outputState
 
     describe "undoing" $ do
       context "with previous command an append" $ do
         it "removes appended text, and pops append command from history" $ do
-          let previousState = (State "initial new" empty [Append " new", Append "initial"])
-              outputState = (State "initial" empty [Append "initial"])
+          let previousState = (State "initial new" queueEmpty [Append " new", Append "initial"])
+              outputState = (State "initial" queueEmpty [Append "initial"])
           perform previousState Undo `shouldBe` outputState
 
   describe "performAll" $ do
     it "handles appends and deletes" $ do
-      let outputState = (State "ac" "c" [Append "c", Delete 1, Append "b", Append "a"])
+      let outputState = (State "ac" (enqueue "c") [Append "c", Delete 1, Append "b", Append "a"])
           commands = [Append "a", Append "b", Delete 1, Append "c", Print 2]
       performAll initialState commands `shouldBe` outputState
 
     it "handles all commands" $ do
-      let outputState = (State "ad" "dca" [Append "d", Delete 1, Append "c", Append "a"])
+      let outputState = (State "ad" (enqueue "dca") [Append "d", Delete 1, Append "c", Append "a"])
           commands = [Append "a"
                      , Print 1
                      , Append "b"
