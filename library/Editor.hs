@@ -20,7 +20,6 @@ import Data.Sequence (Seq
                      , fromList)
 
 -- TODO: 1: protect undoable command list (in state) from getting a non-undoable command
--- 3: protect integers (in Print and Delete) from being unnatural numbers, or less than 1 in Print's case
 -- 4: move queue logic to own namespace
 
 newtype Queue a = Queue (Seq a) deriving (Show, Eq)
@@ -55,20 +54,25 @@ perform :: State -> Command -> State
 perform s cmd@(Append str) = State (append (getInternal s) str)
                                    (getOutput s)
                                    (cmd : (getHistory s))
-perform s cmd@(Delete i) = State (dropEnd i $ getInternal s)
+perform s cmd@(Delete i) = State (delete (fromIntegral i) (getInternal s))
                                  (getOutput s)
                                  (cmd : getHistory s)
 perform s (Print i) = State (getInternal s)
                             (getInternalChar (fromIntegral i) (getInternal s) `queuePush` (getOutput s))
-                            (getHistory s)
+                            (getHistory s) -- don't add Print to history!
 perform s Undo = State (getInternal $ performAll initialState (tail $ getHistory s))
                        (getOutput s)
                        (tail $ getHistory s)
+
+delete :: Int -> Text -> Text
+delete i str | i < 1 = str
+             | i > (fromIntegral $ T.length str) = ""
+             | otherwise = dropEnd (toIntegral i) str
 
 getInternalChar :: Int -> Text -> Char
 getInternalChar i str | i < 1 = index str 0
                       | i >= (fromIntegral $ T.length str) = T.last str
                       | otherwise = index str $ toIntegral $ i - 1
-  where
-    toIntegral :: Int -> Int64
-    toIntegral = fromInteger . toInteger
+
+toIntegral :: Int -> Int64
+toIntegral = fromInteger . toInteger
