@@ -20,6 +20,7 @@ executables:
     dependencies:
     - base
     - simple-text-editor
+    - mtl
     ghc-options:
     - -rtsopts
     - -threaded
@@ -37,6 +38,8 @@ github: githubuser/simple-text-editor
 library:
   dependencies:
   - base
+  - tasty
+  - tasty-hspec
   source-dirs: library
 license: MIT
 maintainer: Author name here

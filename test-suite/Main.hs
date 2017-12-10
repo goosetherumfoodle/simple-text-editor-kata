@@ -1,10 +1,9 @@
--- Tasty makes it easy to test your code. It is a test framework that can
--- combine many different types of tests into one suite. See its website for
--- help: <http://documentup.com/feuerbach/tasty>.
 import qualified Test.Tasty
--- Hspec is one of the providers for Tasty. It provides a nice syntax for
--- writing tests. Its website has more info: <https://hspec.github.io>.
 import Test.Tasty.Hspec
+import Editor (perform
+              , Command(..)
+              , State(..)
+              , initialState)
 
 main :: IO ()
 main = do
@@ -13,5 +12,14 @@ main = do
 
 spec :: Spec
 spec = parallel $ do
-    it "is trivially true" $ do
-        True `shouldBe` True
+  describe "perform" $ do
+    describe "appending" $ do
+      context "to initial state" $ do
+        it "returns correct state" $ do
+          let outputState = (State "horse" "" [Append "horse"])
+          perform initialState (Append "horse") `shouldBe` outputState
+      context "to existing state" $ do
+        let previousState = (State "initial" "" [Append "initial"])
+        it "returns correct state" $ do
+          let outputState = (State "initial new" "" [Append " new", Append "initial"])
+          perform previousState (Append " new") `shouldBe` outputState
