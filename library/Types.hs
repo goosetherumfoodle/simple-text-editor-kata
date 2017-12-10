@@ -1,4 +1,4 @@
-module Types (Command(..), State(..), Output) where
+module Types (Command(..), State(..), Output, InternalString) where
 
 import Data.Int (Int64)
 import Data.Queue (Queue)

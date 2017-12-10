@@ -41,9 +41,12 @@ perform s (Print i) = State (getInternal s)
 
 -- co-recursive call to performAll will re-generate the internal string.
 -- could infinitly loop if Undo were added to the history in the call to performAll
-perform s Undo = State (getInternal $ performAll initialState $ reverse $ tailSafe $ getHistory s) -- don't add Undo to history!
+perform s Undo = State (newInternal s)
                        (getOutput s)
                        (tailSafe $ getHistory s)
+  where
+    newInternal :: State -> InternalString
+    newInternal = getInternal . (performAll initialState) . reverse . tailSafe . getHistory -- reversed to play history in correct order
 
 -- account for bad index values in Delete
 delete :: Int -> Text -> Text
