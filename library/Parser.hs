@@ -1,4 +1,4 @@
-module Parser (parseCommandInput) where
+module Parser (main) where
 
 import Data.Text.Lazy (pack)
 import Text.Parser.Combinators (some)
@@ -22,8 +22,8 @@ import Text.Trifecta (Parser
 -- TODO: delete example file
   -- extract types into seperate namespace
 
-parseCommandInput :: ByteString -> Result [Command]
-parseCommandInput input = parseByteString commandInputParser mempty input
+main :: ByteString -> Result [Command]
+main input = parseByteString commandInputParser mempty input
 
 commandInputParser :: Parser [Command]
 commandInputParser = do

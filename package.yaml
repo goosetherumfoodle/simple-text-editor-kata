@@ -20,7 +20,8 @@ executables:
     dependencies:
     - base
     - simple-text-editor
-    - mtl
+    - trifecta
+    - bytestring
     ghc-options:
     - -rtsopts
     - -threaded
@@ -45,8 +46,8 @@ library:
   - parsers
   source-dirs: library
 maintainer: Jesse Hanley
-name: simple-text-editor
-synopsis: A new Haskeleton package.
+name: text-editor-challenge
+synopsis: Solution for text editor kata
 tests:
   simple-text-editor-test-suite:
     dependencies:
@@ -63,4 +64,4 @@ tests:
     - -with-rtsopts=-N
     main: Main.hs
     source-dirs: test-suite
-version: '0.0.0'
+version: '1.0.0'

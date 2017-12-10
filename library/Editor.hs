@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Editor (perform
+module Editor (main
+              , perform
                , Command(..)
                , State(..)
                , initialState
@@ -25,6 +26,9 @@ data State = State {
   , getOutput :: Output
   , getHistory :: [Command]
   } deriving (Show, Eq)
+
+main :: [Command] -> Output
+main = getOutput . (performAll initialState)
 
 initialState :: State
 initialState = State "" emptyQueue []
