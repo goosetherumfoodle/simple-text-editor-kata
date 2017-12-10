@@ -38,11 +38,9 @@ github: githubuser/simple-text-editor
 library:
   dependencies:
   - base
-  - tasty
-  - tasty-hspec
+  - text
   source-dirs: library
-license: MIT
-maintainer: Author name here
+maintainer: Jesse Hanley
 name: simple-text-editor
 synopsis: A new Haskeleton package.
 tests:
