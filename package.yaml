@@ -40,6 +40,7 @@ library:
   - base
   - text
   - containers
+  - safe
   source-dirs: library
 maintainer: Jesse Hanley
 name: simple-text-editor
