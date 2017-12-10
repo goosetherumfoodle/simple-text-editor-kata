@@ -12,6 +12,7 @@ import Data.Text.Lazy (Text
                       , dropEnd
                       , append
                       , index)
+import qualified Data.Text.Lazy as T
 import Data.Int (Int64)
 import Data.Sequence (Seq
                      , empty
@@ -46,6 +47,10 @@ queueEmpty = Queue empty
 initialState :: State
 initialState = State "" queueEmpty []
 
+performAll :: State -> [Command] -> State
+performAll s (cmd:cmds) = performAll (perform s cmd) cmds
+performAll s [] = s
+
 perform :: State -> Command -> State
 perform s cmd@(Append str) = State (append (getInternal s) str)
                                    (getOutput s)
@@ -54,12 +59,16 @@ perform s cmd@(Delete i) = State (dropEnd i $ getInternal s)
                                  (getOutput s)
                                  (cmd : getHistory s)
 perform s (Print i) = State (getInternal s)
-                            ((index (getInternal s) (i - 1)) `queuePush` (getOutput s))
+                            (getInternalChar (fromIntegral i) (getInternal s) `queuePush` (getOutput s))
                             (getHistory s)
 perform s Undo = State (getInternal $ performAll initialState (tail $ getHistory s))
                        (getOutput s)
                        (tail $ getHistory s)
 
-performAll :: State -> [Command] -> State
-performAll s (cmd:cmds) = performAll (perform s cmd) cmds
-performAll s [] = s
+getInternalChar :: Int -> Text -> Char
+getInternalChar i str | i < 1 = index str 0
+                      | i >= (fromIntegral $ T.length str) = T.last str
+                      | otherwise = index str $ toIntegral $ i - 1
+  where
+    toIntegral :: Int -> Int64
+    toIntegral = fromInteger . toInteger
