@@ -69,7 +69,7 @@ spec = parallel $ do
           commands = [Append "a", Append "b", Delete 1, Append "c", Print 2]
       performAll initialState commands `shouldBe` outputState
 
-    it "handles all commands" $ do
+    it "handles print and undo commands" $ do
       let outputState = (State "ad" (enqueue "dca") [Append "d", Delete 1, Append "c", Append "a"])
           commands = [Append "a"
                      , Print 1
@@ -82,3 +82,18 @@ spec = parallel $ do
                      , Print 2
                      ]
       performAll initialState commands `shouldBe` outputState
+
+    context "with too many undos" $ do
+      it "doesn't error, just empties command history in state" $ do
+        let outputState = (State "remaining" queueEmpty [Append "remaining"])
+            commands = [Append "a"
+                       , Append "b"
+                       , Undo
+                       , Undo
+                       , Append "c"
+                       , Undo
+                       , Undo
+                       , Undo
+                       , Append "remaining"
+                       ]
+        performAll initialState commands `shouldBe` outputState
