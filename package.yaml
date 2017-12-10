@@ -40,6 +40,9 @@ library:
   - text
   - containers
   - safe
+  - bytestring
+  - trifecta
+  - parsers
   source-dirs: library
 maintainer: Jesse Hanley
 name: simple-text-editor
