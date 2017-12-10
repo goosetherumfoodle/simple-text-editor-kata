@@ -5,7 +5,8 @@ import Test.Tasty.Hspec
 import Editor (perform
               , Command(..)
               , State(..)
-              , initialState)
+              , initialState
+              , performAll)
 
 main :: IO ()
 main = do
@@ -38,3 +39,30 @@ spec = parallel $ do
         let previousState = (State "initial" "i" [Append "initial"])
             outputState = (State "initial" "ni" [Append "initial"])
         perform previousState (Print 2) `shouldBe` outputState
+
+    describe "undoing" $ do
+      context "with previous command an append" $ do
+        it "removes appended text, and pops append command from history" $ do
+          let previousState = (State "initial new" "" [Append " new", Append "initial"])
+              outputState = (State "initial" "" [Append "initial"])
+          perform previousState Undo `shouldBe` outputState
+
+  describe "performAll" $ do
+    it "handles appends and deletes" $ do
+      let outputState = (State "ac" "c" [Append "c", Delete 1, Append "b", Append "a"])
+          commands = [Append "a", Append "b", Delete 1, Append "c", Print 2]
+      performAll initialState commands `shouldBe` outputState
+
+    it "handles all commands" $ do
+      let outputState = (State "ad" "dca" [Append "d", Delete 1, Append "c", Append "a"])
+          commands = [Append "a"
+                     , Print 1
+                     , Append "b"
+                     , Undo
+                     , Append "c"
+                     , Print 2
+                     , Delete 1
+                     , Append "d"
+                     , Print 2
+                     ]
+      performAll initialState commands `shouldBe` outputState
