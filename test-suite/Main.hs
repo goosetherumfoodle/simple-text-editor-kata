@@ -10,7 +10,6 @@ import Editor (perform
               , queueEmpty
               , enqueue)
 
-
 main :: IO ()
 main = do
     test <- testSpec "simple-text-editor" spec
@@ -32,16 +31,30 @@ spec = parallel $ do
           perform previousState (Append " new") `shouldBe` outputState
 
     describe "deleting" $ do
-      it "removes correct number of characters" $ do
-        let previousState = (State "initial state" queueEmpty [Append "initial state"])
-            outputState = (State "initial" queueEmpty [Delete 6, Append "initial state"])
-        perform previousState (Delete 6) `shouldBe` outputState
+      context "more characters than exist in the internal string" $ do
+        it "doesn't error, just blanks internal string" $ do
+          let previousState = (State "initial state" queueEmpty [Append "initial state"])
+              outputState = (State "" queueEmpty [Delete 100, Append "initial state"])
+          perform previousState (Delete 100) `shouldBe` outputState
+
+      context "less characters than exist in internal string" $ do
+        it "removes correct number of characters" $ do
+          let previousState = (State "initial state" queueEmpty [Append "initial state"])
+              outputState = (State "initial" queueEmpty [Delete 6, Append "initial state"])
+          perform previousState (Delete 6) `shouldBe` outputState
 
     describe "printing" $ do
-      it "conses the correct character into the output" $ do
-        let previousState = (State "initial" (enqueue "i") [Append "initial"])
-            outputState = (State "initial" (enqueue "ni") [Append "initial"])
-        perform previousState (Print 2) `shouldBe` outputState
+      context "with index greater than internal string's last index position" $ do
+        it "just outputs the last char" $ do
+          let previousState = (State "initial" (enqueue "i") [Append "initial"])
+              outputState = (State "initial" (enqueue "li") [Append "initial"])
+          perform previousState (Print 100) `shouldBe` outputState
+
+      context "with valid index" $ do
+        it "conses the correct character into the output" $ do
+          let previousState = (State "initial" (enqueue "i") [Append "initial"])
+              outputState = (State "initial" (enqueue "ni") [Append "initial"])
+          perform previousState (Print 2) `shouldBe` outputState
 
     describe "undoing" $ do
       context "with previous command an append" $ do

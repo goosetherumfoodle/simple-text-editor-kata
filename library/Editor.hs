@@ -20,6 +20,7 @@ import Data.Sequence (Seq
 
 -- TODO: 1: protect undoable command list (in state) from getting a non-undoable command
 -- 3: protect integers (in Print and Delete) from being unnatural numbers, or less than 1 in Print's case
+-- 4: move queue logic to own namespace
 
 newtype Queue a = Queue (Seq a) deriving (Show, Eq)
 
@@ -33,6 +34,7 @@ data State = State {
   , getHistory :: [Command]
   } deriving (Show, Eq)
 
+enqueue :: [a] -> Queue a
 enqueue = Queue . fromList
 
 queuePush :: a -> Queue a -> Queue a
