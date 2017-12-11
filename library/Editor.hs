@@ -8,7 +8,6 @@ import Data.Text.Lazy (Text
                       , index)
 import qualified Data.Text.Lazy as T
 import Data.Int (Int64)
-import Data.Queue (emptyQueue, queuePush)
 import Data.Dequeue (popRight, dropLeft, pushLeft, emptyDequeue)
 import Types
 
@@ -16,7 +15,7 @@ main :: History -> Output
 main = getOutput . (performAll initialState)
 
 initialState :: State
-initialState = State "" emptyQueue emptyDequeue
+initialState = State "" emptyDequeue emptyDequeue
 
 -- loops perform on each command in history while threading state through
 performAll :: State -> History -> State
@@ -37,7 +36,7 @@ perform s cmd@(Delete i) = State (delete (fromIntegral i) (getInternal s))
 
 -- push char to output string, but don't save to history
 perform s (Print i) | Just char <- internalChar = State (getInternal s)
-                                                        (char `queuePush` (getOutput s))
+                                                        (char `pushLeft` (getOutput s))
                                                         (getHistory s) -- don't add Print to history!
                     | otherwise = s
   where
@@ -50,7 +49,7 @@ perform s Undo = State (newInternal s)
                        (dropLeft $ getHistory s)
   where
     newInternal :: State -> InternalString
-    newInternal = getInternal . (performAll initialState) . dropLeft . getHistory -- reversed to play history in correct order
+    newInternal = getInternal . (performAll initialState) . dropLeft . getHistory
 
 -- account for bad index values in Delete
 delete :: Int -> Text -> Text

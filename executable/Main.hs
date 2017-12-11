@@ -7,7 +7,7 @@ import Text.Trifecta.Result (Result(..))
 import qualified Data.ByteString.Char8 as BS
 import qualified Editor
 import qualified Parser
-import qualified Data.Queue as Q
+import qualified Data.Dequeue as D
 import Types
 
 -- will read file from commandline if provided,
@@ -16,8 +16,11 @@ main :: IO ()
 main = do
   fileText <- (BS.readFile <$> getFilePath)
   parsedCommands <- handleResults <$> (Parser.main <$> fileText)
-  parsedCommands >>= (Q.printQueue . Editor.main)
+  parsedCommands >>= (printDequeue . Editor.main)
 
+printDequeue :: Show a => D.Dequeue a -> IO ()
+printDequeue deq | Just (left, x) <- D.popRight deq = print x >> printDequeue left
+                 | otherwise = return ()
 
 -- Throws error if parser didn't like the file
 handleResults :: Result History -> IO History

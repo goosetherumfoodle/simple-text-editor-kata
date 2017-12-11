@@ -16,7 +16,13 @@ import Data.Sequence (ViewR((:>))
                      , (<|)
                      )
 
+-- Wraps Sequence in a dequeue-style interface.
+-- we will be reading from the right, and pushing to the left.
+
 newtype Dequeue a = Dequeue { runDequeue :: (Seq a) } deriving (Show, Eq)
+
+endequeue :: [a] -> Dequeue a
+endequeue = Dequeue . fromList
 
 pushLeft :: a -> Dequeue a -> Dequeue a
 pushLeft a (Dequeue sqnce) = Dequeue $ a <| sqnce
@@ -34,9 +40,6 @@ popRight = popRight' . viewr . runDequeue
     popRight' :: ViewR a -> Maybe (Dequeue a, a)
     popRight' (deq :> a) = Just (Dequeue deq, a)
     popRight' _ = Nothing
-
-endequeue :: [a] -> Dequeue a
-endequeue = Dequeue . fromList
 
 emptyDequeue :: Dequeue a
 emptyDequeue = Dequeue empty
