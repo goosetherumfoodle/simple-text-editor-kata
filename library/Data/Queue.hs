@@ -3,7 +3,7 @@ module Data.Queue (Queue, emptyQueue, enqueue, queuePush, printQueue) where
 import Data.Sequence (Seq, empty, fromList, viewr, (<|), ViewR((:>)))
 
 -- This module wraps Data.Sequence, which is a dequeue,
--- in order to give it a fool-proof queue interface.
+-- in order to give it a queue interface.
 
 newtype Queue a = Queue (Seq a) deriving (Show, Eq)
 

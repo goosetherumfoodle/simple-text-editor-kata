@@ -20,7 +20,7 @@ main = do
 
 
 -- Throws error if parser didn't like the file
-handleResults :: Result [Command] -> IO [Command]
+handleResults :: Result History -> IO History
 handleResults (Success cmds) = return cmds
 handleResults (Failure err) =  do BS.hPutStrLn stderr $ BS.pack ("Parsing error: " ++ (show err))
                                   exitFailure

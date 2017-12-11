@@ -6,6 +6,7 @@ import Text.Parser.Token (natural, whiteSpace)
 import Data.ByteString.Char8 (ByteString)
 import Control.Monad(replicateM)
 import Control.Applicative ((<|>))
+import Data.Dequeue (endequeue)
 import Types
 import Text.Trifecta (Parser
                      , Result
@@ -19,14 +20,14 @@ import Text.Trifecta (Parser
                      , manyTill
                      )
 
-main :: ByteString -> Result [Command]
+main :: ByteString -> Result History
 main input = parseByteString commandInputParser mempty input
 
 -- loops parseCommand until end of file or bad input
-commandInputParser :: Parser [Command]
+commandInputParser :: Parser History
 commandInputParser = do
   _ <- parseSomeDigits 1 <* whiteSpace -- throw away first digit as we don't use it
-  manyTill parseCommand $ try endOfLine
+  endequeue . reverse <$> (manyTill parseCommand $ try endOfLine)
 
 parseCommand :: Parser Command
 parseCommand = do

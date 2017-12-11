@@ -7,32 +7,33 @@ import Data.Text.Lazy (Text
                       , append
                       , index)
 import qualified Data.Text.Lazy as T
-import Safe (tailSafe)
 import Data.Int (Int64)
 import Data.Queue (emptyQueue, queuePush)
+import Data.Dequeue (popRight, dropLeft, pushLeft, emptyDequeue)
 import Types
 
-main :: [Command] -> Output
+main :: History -> Output
 main = getOutput . (performAll initialState)
 
 initialState :: State
-initialState = State "" emptyQueue []
+initialState = State "" emptyQueue emptyDequeue
 
-performAll :: State -> [Command] -> State
-performAll s (cmd:cmds) = performAll (perform s cmd) cmds
-performAll s [] = s
+-- loops perform on each command in history while threading state through
+performAll :: State -> History -> State
+performAll s hist | Just (cmds, cmd) <- popRight hist = performAll (perform s cmd) cmds
+                  | otherwise = s
 
 -- core function for editing logic.
 perform :: State -> Command -> State
 -- append to internal string, and save to history list
 perform s cmd@(Append str) = State (append (getInternal s) str)
                                    (getOutput s)
-                                   (cmd : (getHistory s))
+                                   (cmd `pushLeft` (getHistory s))
 
 -- delete from internal string, and save to history list
 perform s cmd@(Delete i) = State (delete (fromIntegral i) (getInternal s))
                                  (getOutput s)
-                                 (cmd : getHistory s)
+                                 (cmd `pushLeft` (getHistory s))
 
 -- push char to output string, but don't save to history
 perform s (Print i) = State (getInternal s)
@@ -43,10 +44,10 @@ perform s (Print i) = State (getInternal s)
 -- could infinitly loop if Undo were added to the history in the call to performAll
 perform s Undo = State (newInternal s)
                        (getOutput s)
-                       (tailSafe $ getHistory s)
+                       (dropLeft $ getHistory s)
   where
     newInternal :: State -> InternalString
-    newInternal = getInternal . (performAll initialState) . reverse . tailSafe . getHistory -- reversed to play history in correct order
+    newInternal = getInternal . (performAll initialState) . dropLeft . getHistory -- reversed to play history in correct order
 
 -- account for bad index values in Delete
 delete :: Int -> Text -> Text
