@@ -4,7 +4,6 @@ import Data.Text.Lazy (pack)
 import Text.Parser.Combinators (some)
 import Text.Parser.Token (natural, whiteSpace)
 import Data.ByteString.Char8 (ByteString)
-import Control.Monad(replicateM)
 import Control.Applicative ((<|>))
 import Data.Dequeue (endequeue)
 import Types
@@ -26,13 +25,13 @@ main input = parseByteString commandInputParser mempty input
 -- loops parseCommand until end of file or bad input
 commandInputParser :: Parser History
 commandInputParser = do
-  _ <- parseSomeDigits 1 <* whiteSpace -- throw away first digit as we don't use it
+  _ <- digit <* whiteSpace -- throw away first digit as we don't use it
   endequeue . reverse <$> (manyTill parseCommand $ try endOfLine)
 
 parseCommand :: Parser Command
 parseCommand = do
   commandNumber <- digit
-  -- we're assuming valid input commands of 1-4
+  -- we're assuming valid input commands of 1-4, and commands 1-3 have args
   case commandNumber of
     '1' -> Append . pack <$> parseStringArg
     '2' -> Delete . fromInteger <$> parseNumberArg
@@ -45,11 +44,8 @@ parseNumberArg = parseToken natural
 parseStringArg :: Parser String
 parseStringArg = parseToken $ some lower
 
-parseToken :: Parser a  -> Parser a
+parseToken :: Parser a -> Parser a
 parseToken token = some space >> token >>= \args -> return args <* whiteSpace
-
-parseSomeDigits :: Int -> Parser Integer
-parseSomeDigits num = read <$> replicateM num digit
 
 -- detect the end of the line or the file
 endOfLine :: Parser (Either () Char)

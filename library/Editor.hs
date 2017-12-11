@@ -17,20 +17,20 @@ main = getOutput . (performAll initialState)
 initialState :: State
 initialState = State "" emptyDequeue emptyDequeue
 
--- loops perform on each command in history while threading state through
+-- loops `perform` on each command in history while threading state through
 performAll :: State -> History -> State
 performAll s hist | Just (cmds, cmd) <- popRight hist = performAll (perform s cmd) cmds
                   | otherwise = s
 
--- core function for editing logic.
+-- core editing logic.
 perform :: State -> Command -> State
 -- append to internal string, and save to history list
-perform s cmd@(Append str) = State (append (getInternal s) str)
+perform s cmd@(Append str) = State (getInternal s `append` str)
                                    (getOutput s)
                                    (cmd `pushLeft` (getHistory s))
 
 -- delete from internal string, and save to history list
-perform s cmd@(Delete i) = State (delete (fromIntegral i) (getInternal s))
+perform s cmd@(Delete i) = State (delete (fromIntegral i) $ getInternal s)
                                  (getOutput s)
                                  (cmd `pushLeft` (getHistory s))
 
@@ -40,7 +40,7 @@ perform s (Print i) | Just char <- internalChar = State (getInternal s)
                                                         (getHistory s) -- don't add Print to history!
                     | otherwise = s
   where
-    internalChar = getInternalChar (fromIntegral i) (getInternal s)
+    internalChar = getInternalChar (fromIntegral i) $ getInternal s
 
 -- co-recursive call to performAll will re-generate the internal string.
 -- could infinitly loop if Undo were added to the history in the call to performAll
