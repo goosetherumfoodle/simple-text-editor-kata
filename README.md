@@ -1,5 +1,9 @@
 # text-editor-challenge
 
+## Challenge specs
+
+https://www.hackerrank.com/challenges/simple-text-editor/problem
+
 ## running the app
 
 If you have stack installed...
