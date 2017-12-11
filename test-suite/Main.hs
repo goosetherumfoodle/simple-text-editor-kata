@@ -61,11 +61,10 @@ spec = parallel $ do
             perform previousState (Print 2) `shouldBe` outputState
 
       describe "undoing" $ do
-        context "with previous command an append" $ do
-          it "removes appended text, and pops append command from history" $ do
-            let previousState = (State "1" emptyQueue [Delete 1, Append "2", Append "1"])
-                outputState = (State "12" emptyQueue [Append "2", Append "1"])
-            perform previousState Undo `shouldBe` outputState
+        it "pops last command from history and regenerates internal string" $ do
+          let previousState = (State "1" emptyQueue [Delete 1, Append "2", Append "1"])
+              outputState = (State "12" emptyQueue [Append "2", Append "1"])
+          perform previousState Undo `shouldBe` outputState
 
     describe "performAll" $ do
       it "handles appends and deletes" $ do
