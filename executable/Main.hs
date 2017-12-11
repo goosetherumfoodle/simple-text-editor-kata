@@ -1,14 +1,14 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import System.Environment (getArgs)
-import System.Exit (exitFailure)
-import System.IO (stderr)
-import Text.Trifecta.Result (Result(..))
 import qualified Data.ByteString.Char8 as BS
+import qualified Data.Dequeue          as D
 import qualified Editor
 import qualified Parser
-import qualified Data.Dequeue as D
-import Types
+import           System.Environment    (getArgs)
+import           System.Exit           (exitFailure)
+import           System.IO             (stderr)
+import           Text.Trifecta.Result  (Result (..))
+import           Types
 
 -- will read file from commandline if provided,
 -- otherwise uses a default sample file

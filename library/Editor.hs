@@ -2,14 +2,11 @@
 
 module Editor (main, perform, initialState, performAll) where
 
-import Data.Text.Lazy (Text
-                      , dropEnd
-                      , append
-                      , index)
+import           Data.Dequeue   (dropLeft, emptyDequeue, popRight, pushLeft)
+import           Data.Int       (Int64)
+import           Data.Text.Lazy (Text, append, dropEnd, index)
 import qualified Data.Text.Lazy as T
-import Data.Int (Int64)
-import Data.Dequeue (popRight, dropLeft, pushLeft, emptyDequeue)
-import Types
+import           Types
 
 main :: History -> Output
 main = getOutput . (performAll initialState)

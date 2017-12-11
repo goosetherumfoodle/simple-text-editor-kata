@@ -1,23 +1,15 @@
 module Parser (main) where
 
-import Data.Text.Lazy (pack)
-import Text.Parser.Combinators (some)
-import Text.Parser.Token (natural, whiteSpace)
-import Data.ByteString.Char8 (ByteString)
-import Control.Applicative ((<|>))
-import Data.Dequeue (endequeue)
-import Types
-import Text.Trifecta (Parser
-                     , Result
-                     , parseByteString
-                     , char
-                     , space
-                     , digit
-                     , lower
-                     , eof
-                     , try
-                     , manyTill
-                     )
+import           Control.Applicative     ((<|>))
+import           Data.ByteString.Char8   (ByteString)
+import           Data.Dequeue            (endequeue)
+import           Data.Text.Lazy          (pack)
+import           Text.Parser.Combinators (some)
+import           Text.Parser.Token       (natural, whiteSpace)
+import           Text.Trifecta           (Parser, Result, char, digit, eof,
+                                          lower, manyTill, parseByteString,
+                                          space, try)
+import           Types
 
 main :: ByteString -> Result History
 main input = parseByteString commandInputParser mempty input
@@ -36,7 +28,7 @@ parseCommand = do
     '1' -> Append . pack <$> parseStringArg
     '2' -> Delete . fromInteger <$> parseNumberArg
     '3' -> Print . fromInteger <$> parseNumberArg
-    _ -> whiteSpace >> return Undo
+    _   -> whiteSpace >> return Undo
 
 parseNumberArg :: Parser Integer
 parseNumberArg = parseToken natural

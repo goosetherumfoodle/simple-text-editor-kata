@@ -1,17 +1,14 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import Prelude hiding (readFile)
+import           Data.ByteString  (readFile)
+import           Data.Dequeue     (emptyDequeue, endequeue)
+import           Editor           (initialState, perform, performAll)
+import qualified Parser           (main)
+import           Prelude          hiding (readFile)
 import qualified Test.Tasty
-import Test.Tasty.Hspec
-import Data.ByteString (readFile)
-import Text.Trifecta (Result(..))
-import Editor (perform
-              , initialState
-              , performAll
-              )
-import Data.Dequeue (emptyDequeue, endequeue)
-import Types
-import qualified Parser (main)
+import           Test.Tasty.Hspec
+import           Text.Trifecta    (Result (..))
+import           Types
 
 main :: IO ()
 main = do

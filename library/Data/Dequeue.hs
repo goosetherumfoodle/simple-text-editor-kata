@@ -6,15 +6,8 @@ module Data.Dequeue (Dequeue
                     , emptyDequeue
                     ) where
 
-import Data.Sequence (ViewR((:>))
-                     , ViewL((:<))
-                     , Seq
-                     , fromList
-                     , empty
-                     , viewr
-                     , viewl
-                     , (<|)
-                     )
+import           Data.Sequence (Seq, ViewL ((:<)), ViewR ((:>)), empty,
+                                fromList, viewl, viewr, (<|))
 
 -- Wraps Sequence in a dequeue-style interface.
 -- we will be reading from the right, and pushing to the left.
@@ -32,14 +25,14 @@ dropLeft = Dequeue . dropLeft' . viewl . runDequeue
   where
     dropLeft' :: ViewL a -> Seq a
     dropLeft' (_ :< sqnce) = sqnce
-    dropLeft' _ = empty
+    dropLeft' _            = empty
 
 popRight :: Dequeue a -> Maybe (Dequeue a, a)
 popRight = popRight' . viewr . runDequeue
   where
     popRight' :: ViewR a -> Maybe (Dequeue a, a)
     popRight' (deq :> a) = Just (Dequeue deq, a)
-    popRight' _ = Nothing
+    popRight' _          = Nothing
 
 emptyDequeue :: Dequeue a
 emptyDequeue = Dequeue empty
