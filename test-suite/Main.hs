@@ -55,6 +55,12 @@ spec = parallel $ do
                 outputState = State "initial" (enqueue "li") $ endequeue [Append "initial"]
             perform previousState (Print 100) `shouldBe` outputState
 
+        context "with blank internal string" $ do
+          it "doesn't fail, but just doesn't modify output string" $ do
+            let previousState = State "" (enqueue "a") $ endequeue [Delete 1, Append "a"]
+                outputState = State "" (enqueue "a") $ endequeue [Delete 1, Append "a"]
+            perform previousState (Print 1) `shouldBe` outputState
+
         context "with valid index" $ do
           it "conses the correct character into the output" $ do
             let previousState = State "initial" (enqueue "i") $ endequeue [Append "initial"]

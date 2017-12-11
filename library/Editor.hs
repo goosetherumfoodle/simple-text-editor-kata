@@ -36,9 +36,12 @@ perform s cmd@(Delete i) = State (delete (fromIntegral i) (getInternal s))
                                  (cmd `pushLeft` (getHistory s))
 
 -- push char to output string, but don't save to history
-perform s (Print i) = State (getInternal s)
-                            (getInternalChar (fromIntegral i) (getInternal s) `queuePush` (getOutput s))
-                            (getHistory s) -- don't add Print to history!
+perform s (Print i) | Just char <- internalChar = State (getInternal s)
+                                                        (char `queuePush` (getOutput s))
+                                                        (getHistory s) -- don't add Print to history!
+                    | otherwise = s
+  where
+    internalChar = getInternalChar (fromIntegral i) (getInternal s)
 
 -- co-recursive call to performAll will re-generate the internal string.
 -- could infinitly loop if Undo were added to the history in the call to performAll
@@ -55,11 +58,12 @@ delete i str | i < 1 = str
              | i > (fromIntegral $ T.length str) = ""
              | otherwise = dropEnd (toIntegral i) str
 
--- account for bad index values in Print
-getInternalChar :: Int -> Text -> Char
-getInternalChar i str | i < 1 = index str 0
-                      | i >= (fromIntegral $ T.length str) = T.last str
-                      | otherwise = index str $ toIntegral $ i - 1
+-- account for bad index values in Print, and empty string
+getInternalChar :: Int -> Text -> Maybe Char
+getInternalChar _ "" = Nothing
+getInternalChar i str | i < 1 = Just $ index str 0
+                      | i >= (fromIntegral $ T.length str) = Just $ T.last str
+                      | otherwise = Just $ index str $ toIntegral $ i - 1
 
 toIntegral :: Int -> Int64
 toIntegral = fromInteger . toInteger
